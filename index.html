@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Pictogramas</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #eef2f7;
+  color: #172033;
+}
+
+body {
+  display: flex;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+.app-shell {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-header {
+  height: 66px;
+  flex: 0 0 66px;
+  padding: 0 22px;
+  background: #111827;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.brand-subtitle {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-badge {
+  border: 1px solid #334155;
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 11px;
+  color: #dbeafe;
+  background: #1e293b;
+  white-space: nowrap;
+}
+
+.screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: none;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.config-screen {
+  padding: 18px;
+  gap: 18px;
+  overflow: hidden;
+}
+
+.config-panel,
+.preview-panel {
+  background: #ffffff;
+  border: 1px solid #d9e1ec;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .07);
+  min-height: 0;
+}
+
+.config-panel {
+  flex: 0 0 44%;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.preview-panel {
+  flex: 1 1 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.config-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.config-top-row .btn {
+  flex: 0 0 auto;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.panel-note {
+  margin-top: -7px;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 11px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  padding: 10px 11px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  transition: .15s;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: #64748b;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, .12);
+}
+
+.field textarea {
+  resize: none;
+  height: 118px;
+  line-height: 1.45;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dbe3ee;
+  padding: 9px 10px;
+  border-radius: 9px;
+  background: #f8fafc;
+  min-height: 42px;
+}
+
+.inline-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.inline-check span {
+  font-size: 11px;
+  color: #334155;
+  line-height: 1.3;
+}
+
+.config-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 9px;
+}
+
+.btn {
+  min-height: 40px;
+  border-radius: 9px;
+  padding: 0 15px;
+  font-weight: 800;
+  font-size: 12px;
+  transition: transform .1s ease, opacity .1s ease, background .1s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #111827;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-light {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #d6deea;
+}
+
+.btn-danger-soft {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid #e6ebf2;
+}
+
+.preview-head strong {
+  font-size: 13px;
+}
+
+.preview-meta {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.zoom-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.zoom-btn:hover {
+  background: #f1f5f9;
+}
+
+.zoom-value {
+  min-width: 52px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #f8fafc;
+  color: #334155;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.preview-canvas-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.preview-page {
+  flex: 0 0 auto;
+  width: 595px;
+  height: 842px;
+  background: #ffffff;
+  border: 1px solid #d8dee9;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, .09);
+  padding: 26px;
+  overflow: hidden;
+  transform-origin: top center;
+}
+
+.preview-page .mini-title {
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.mini-map-title {
+  font-weight: 700;
+  font-size: 10px;
+  margin-bottom: 7px;
+}
+
+.mini-map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.mini-key {
+  width: 47px;
+  height: 20px;
+  border: 1px solid #222;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 3px;
+  font-size: 8px;
+}
+
+.mini-symbol {
+  font-size: 11px;
+}
+
+.mini-words {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 9px 11px;
+}
+
+.mini-word {
+  display: flex;
+}
+
+.mini-cell {
+  width: 18px;
+}
+
+.mini-answer,
+.mini-picto {
+  height: 16px;
+  border: 1px solid #222;
+  display: grid;
+  place-items: center;
+  font-size: 8px;
+}
+
+.mini-answer {
+  border-bottom: 0;
+}
+
+.mini-picto {
+  font-size: 10px;
+}
+
+.mini-space {
+  width: 10px;
+}
+
+.output-screen {
+  flex-direction: column;
+  background: #dfe5ed;
+  overflow: hidden;
+}
+
+.output-toolbar {
+  height: 60px;
+  flex: 0 0 60px;
+  padding: 0 18px;
+  background: #111827;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.output-toolbar-left,
+.output-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.output-toolbar-title {
+  color: white;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.output-workspace {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.print-page {
+  background: #ffffff;
+  color: #000000;
+  width: 794px;
+  height: 1123px;
+  padding: 42px 44px;
+  box-shadow: 0 10px 35px rgba(15, 23, 42, .14);
+  overflow: hidden;
+  transform-origin: top center;
+  flex: 0 0 auto;
+}
+
+.sheet-title {
+  text-align: center;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1.15;
+  margin: 0 0 24px;
+  text-transform: uppercase;
+}
+
+.letter-map-section {
+  margin-bottom: 28px;
+}
+
+.sheet-section-title {
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0 0 11px;
+}
+
+.letter-map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.letter-key {
+  height: 42px;
+  min-width: 72px;
+  padding: 0 8px;
+  border: 1.2px solid #111;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  background: #ffffff;
+}
+
+.letter-key-symbol {
+  font-size: 23px;
+  line-height: 1;
+  width: 30px;
+  text-align: center;
+}
+
+.letter-key-equals {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.letter-key-value {
+  min-width: 14px;
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.words-board {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  column-gap: 16px;
+  row-gap: 18px;
+}
+
+.word-block {
+  display: flex;
+  align-items: flex-end;
+}
+
+.letter-block {
+  width: 39px;
+  display: flex;
+  flex-direction: column;
+}
+
+.answer-cell,
+.symbol-cell {
+  width: 39px;
+  height: 34px;
+  border: 1.2px solid #111;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+}
+
+.answer-cell {
+  border-bottom: 0;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.symbol-cell {
+  font-size: 23px;
+  line-height: 1;
+}
+
+.word-space {
+  width: 22px;
+  height: 68px;
+}
+
+.punctuation-block {
+  width: 25px;
+  height: 68px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 7px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.status-pill {
+  border: 1px solid #334155;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #cbd5e1;
+  font-size: 10px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%) translateY(30px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: #111827;
+  color: white;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .25);
+  transition: .2s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 900px) {
+  .config-screen {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .config-panel {
+    flex-basis: 52%;
+    padding: 13px;
+  }
+
+  .preview-panel {
+    padding: 12px;
+  }
+
+  .field-grid {
+    gap: 8px;
+  }
+
+  .field textarea {
+    height: 104px;
+  }
+
+  .header-badge {
+    display: none;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .app-header,
+  #configScreen,
+  #outputToolbar,
+  .toast {
+    display: none !important;
+  }
+
+  .app-shell {
+    width: auto !important;
+    height: auto !important;
+    display: block !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  #outputScreen {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .output-workspace {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  body.print-monochrome .letter-key-symbol,
+  body.print-monochrome .symbol-cell {
+    color: #000000 !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  body.print-monochrome .bw-shape {
+    position: relative !important;
+    display: inline-block !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: #000 !important;
+    background: transparent !important;
+    vertical-align: middle !important;
+  }
+
+  body.print-monochrome .bw-shape::before,
+  body.print-monochrome .bw-shape::after {
+    content: "" !important;
+    position: absolute !important;
+    box-sizing: border-box !important;
+  }
+
+  body.print-monochrome .bw-s0::before { inset: 2px; border: 2px solid #000; border-radius: 50%; }
+  body.print-monochrome .bw-s1::before { inset: 2px; border: 2px solid #000; }
+  body.print-monochrome .bw-s2::before { left: 2px; top: 3px; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 13px solid #000; }
+  body.print-monochrome .bw-s3::before { left: 4px; top: 4px; width: 10px; height: 10px; border: 2px solid #000; transform: rotate(45deg); }
+  body.print-monochrome .bw-s4::before { left: 7px; top: 1px; width: 4px; height: 16px; background: #000; }
+  body.print-monochrome .bw-s4::after { left: 1px; top: 7px; width: 16px; height: 4px; background: #000; }
+  body.print-monochrome .bw-s5::before { left: 7px; top: 0; width: 4px; height: 18px; background: #000; transform: rotate(45deg); }
+  body.print-monochrome .bw-s5::after { left: 7px; top: 0; width: 4px; height: 18px; background: #000; transform: rotate(-45deg); }
+  body.print-monochrome .bw-s6::before { inset: 1px; border: 2px solid #000; border-radius: 50%; }
+  body.print-monochrome .bw-s6::after { inset: 6px; background: #000; border-radius: 50%; }
+  body.print-monochrome .bw-s7::before { inset: 1px; border: 2px solid #000; }
+  body.print-monochrome .bw-s7::after { inset: 6px; background: #000; }
+  body.print-monochrome .bw-s8::before { left: 2px; top: 2px; width: 14px; height: 14px; border-top: 3px solid #000; border-bottom: 3px solid #000; }
+  body.print-monochrome .bw-s9::before { left: 2px; top: 2px; width: 14px; height: 14px; border-left: 3px solid #000; border-right: 3px solid #000; }
+  body.print-monochrome .bw-s10::before { left: 2px; top: 8px; width: 14px; height: 3px; background: #000; }
+  body.print-monochrome .bw-s10::after { left: 7px; top: 2px; width: 3px; height: 14px; background: #000; border-radius: 50%; }
+  body.print-monochrome .bw-s11::before { inset: 2px; border: 2px solid #000; border-radius: 50%; }
+  body.print-monochrome .bw-s11::after { left: 8px; top: 2px; width: 2px; height: 14px; background: #000; }
+  body.print-monochrome .bw-s12::before { inset: 2px; border: 2px solid #000; border-radius: 50%; }
+  body.print-monochrome .bw-s12::after { left: 2px; top: 8px; width: 14px; height: 2px; background: #000; }
+  body.print-monochrome .bw-s13::before { left: 2px; top: 8px; width: 14px; height: 2px; background: #000; transform: rotate(30deg); }
+  body.print-monochrome .bw-s13::after { left: 2px; top: 8px; width: 14px; height: 2px; background: #000; transform: rotate(-30deg); }
+  body.print-monochrome .bw-s14::before { left: 1px; top: 1px; width: 16px; height: 16px; border: 2px solid #000; border-radius: 50%; }
+  body.print-monochrome .bw-s14::after { left: 4px; top: 4px; width: 10px; height: 10px; border: 2px solid #000; transform: rotate(45deg); }
+  body.print-monochrome .bw-s15::before { left: 2px; top: 2px; width: 14px; height: 14px; border: 2px solid #000; }
+  body.print-monochrome .bw-s15::after { left: 4px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #000; }
+  body.print-monochrome .bw-s16::before { left: 2px; top: 3px; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 13px solid #000; }
+  body.print-monochrome .bw-s16::after { left: 7px; top: 8px; width: 4px; height: 4px; background: #fff; border-radius: 50%; }
+  body.print-monochrome .bw-s17::before { left: 4px; top: 4px; width: 10px; height: 10px; background: #000; transform: rotate(45deg); }
+  body.print-monochrome .bw-s17::after { left: 7px; top: 7px; width: 4px; height: 4px; background: #fff; border-radius: 50%; }
+  body.print-monochrome .bw-s18::before { left: 1px; top: 7px; width: 16px; height: 4px; background: #000; box-shadow: 0 -6px 0 -1px #000, 0 6px 0 -1px #000; }
+  body.print-monochrome .bw-s19::before { left: 7px; top: 1px; width: 4px; height: 16px; background: #000; box-shadow: -6px 0 0 -1px #000, 6px 0 0 -1px #000; }
+  body.print-monochrome .bw-s20::before { left: 2px; top: 2px; width: 14px; height: 14px; border: 2px dashed #000; border-radius: 50%; }
+  body.print-monochrome .bw-s21::before { left: 2px; top: 2px; width: 14px; height: 14px; border: 2px dashed #000; }
+  body.print-monochrome .bw-s22::before { left: 1px; top: 8px; width: 16px; height: 2px; background: #000; transform: rotate(60deg); }
+  body.print-monochrome .bw-s22::after { left: 1px; top: 8px; width: 16px; height: 2px; background: #000; transform: rotate(-60deg); }
+  body.print-monochrome .bw-s23::before { left: 5px; top: 1px; width: 8px; height: 16px; border: 2px solid #000; border-radius: 50%; }
+  body.print-monochrome .bw-s23::after { left: 1px; top: 5px; width: 16px; height: 8px; border: 2px solid #000; border-radius: 50%; }
+  body.print-monochrome .bw-s24::before { left: 2px; top: 2px; width: 14px; height: 14px; border: 2px solid #000; transform: rotate(45deg); }
+  body.print-monochrome .bw-s24::after { left: 8px; top: 2px; width: 2px; height: 14px; background: #000; }
+  body.print-monochrome .bw-s25::before { left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #000; }
+  body.print-monochrome .bw-s25::after { left: 3px; top: 8px; width: 12px; height: 2px; background: #000; transform: rotate(-45deg); }
+
+  body.print-color-mode #printPage {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printPage {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    zoom: 1 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .sheet-title {
+    font-size: 18pt;
+    margin-bottom: 7mm;
+  }
+
+  .sheet-section-title {
+    font-size: 12pt;
+    margin-bottom: 3mm;
+  }
+
+  .letter-map-section {
+    margin-bottom: 7mm;
+  }
+
+  .letter-map {
+    gap: 2.3mm 2.7mm;
+  }
+
+  .letter-key {
+    min-width: 19mm;
+    height: 10mm;
+    padding: 0 2mm;
+    break-inside: avoid;
+  }
+
+  .letter-key-symbol {
+    font-size: 15pt;
+    width: 8mm;
+  }
+
+  .letter-key-value {
+    font-size: 12pt;
+  }
+
+  .words-board {
+    gap: 4.2mm 4mm;
+  }
+
+  .word-block {
+    break-inside: avoid;
+  }
+
+  .letter-block {
+    width: 9.6mm;
+  }
+
+  .answer-cell,
+  .symbol-cell {
+    width: 9.6mm;
+    height: 8.4mm;
+  }
+
+  .answer-cell {
+    font-size: 12pt;
+  }
+
+  .symbol-cell {
+    font-size: 14pt;
+  }
+
+  .word-space {
+    width: 5mm;
+    height: 16.8mm;
+  }
+
+  .punctuation-block {
+    width: 6mm;
+    height: 16.8mm;
+    padding-bottom: 1.8mm;
+    font-size: 12pt;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="app-header">
+    <div class="brand-box">
+      <div class="brand-icon">◇</div>
+      <div class="brand-text">
+        <div class="brand-title">Gerador de Pictogramas</div>
+        <div class="brand-subtitle">Crie atividades criptográficas prontas para impressão</div>
+      </div>
+    </div>
+    <div class="header-badge">HTML único • A4 Retrato • Fundo branco</div>
+  </header>
+
+  <main id="configScreen" class="screen config-screen active">
+    <section class="config-panel">
+      <div class="config-top-row">
+        <div class="panel-title">Configuração do pictograma</div>
+        <button id="exampleBtn" class="btn btn-secondary" type="button" title="Substitui os dados atuais por um exemplo">Carregar Exemplo</button>
+      </div>
+      <div class="panel-note">Informe as palavras ou frases. Cada linha será tratada como um bloco separado na atividade.</div>
+
+      <div class="field-grid">
+        <div class="field full">
+          <label for="pictogramTitle">Nome do pictograma</label>
+          <input id="pictogramTitle" type="text" maxlength="80" value="JOGO DA REVELAÇÃO" placeholder="Ex.: JOGO DA REVELAÇÃO">
+        </div>
+
+        <div class="field full">
+          <label for="wordsInput">Palavras / frases</label>
+          <textarea id="wordsInput" placeholder="Digite uma palavra ou frase por linha">AVENTURA
+DESAFIO
+PALAVRAS SECRETAS
+MAPA DE LETRAS
+CRIPTOGRAMA
+DESCOBRIR</textarea>
+        </div>
+
+        <div class="field">
+          <label for="themeSelect">Estilo dos símbolos</label>
+          <select id="themeSelect">
+            <option value="animals">Animais</option>
+            <option value="fruits">Frutas</option>
+            <option value="smiles">Smiles</option>
+            <option value="numbers">Números (0 a 99)</option>
+            <option value="greek">Letras gregas</option>
+            <option value="flags">Bandeiras</option>
+            <option value="symbols">Símbolos</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="revealedLetters">Letras inicialmente reveladas</label>
+          <input id="revealedLetters" type="text" maxlength="60" value="A, T, G" placeholder="Ex.: A, T, G">
+        </div>
+
+        <div class="field full">
+          <label>Tratamento de acentos</label>
+          <label class="inline-check">
+            <input id="normalizeAccents" type="checkbox" checked>
+            <span>Substituir letras acentuadas por sua correspondente sem acento e converter Ç em C.</span>
+          </label>
+        </div>
+
+        <div class="field full">
+          <label>Ordem do mapa de letras</label>
+          <label class="inline-check">
+            <input id="shuffleMapLetters" type="checkbox" checked>
+            <span>Embaralhar aleatoriamente as letras no MAPA DAS LETRAS para aumentar a dificuldade.</span>
+          </label>
+        </div>
+
+        <div class="field full">
+          <label>Impressão</label>
+          <label class="inline-check">
+            <input id="colorPrint" type="checkbox">
+            <span>Impressão colorida. Desmarcado: usa símbolos monocromáticos de alto contraste, mais distintos e nítidos no papel.</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="config-actions">
+        <button id="createBtn" class="btn btn-primary" type="button">Criar Pictograma</button>
+        <button id="clearBtn" class="btn btn-danger-soft" type="button">Limpar</button>
+      </div>
+    </section>
+
+    <section class="preview-panel">
+      <div class="preview-head">
+        <div>
+          <strong>Pré-visualização</strong>
+          <div class="preview-meta">Representação reduzida da folha A4</div>
+        </div>
+        <div class="zoom-controls">
+          <button id="previewZoomOut" class="zoom-btn" type="button" title="Diminuir zoom">−</button>
+          <button id="previewZoomReset" class="zoom-value" type="button" title="Ajustar à área"><span id="previewZoomValue">100%</span></button>
+          <button id="previewZoomIn" class="zoom-btn" type="button" title="Aumentar zoom">+</button>
+          <div id="previewCount" class="preview-meta">0 letras</div>
+        </div>
+      </div>
+      <div class="preview-canvas-wrap">
+        <div id="previewPage" class="preview-page">
+          <div id="miniTitle" class="mini-title">JOGO DA REVELAÇÃO</div>
+          <div class="mini-map-title">MAPA DAS LETRAS</div>
+          <div id="miniMap" class="mini-map"></div>
+          <div id="miniWords" class="mini-words"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main id="outputScreen" class="screen output-screen">
+    <div id="outputToolbar" class="output-toolbar">
+      <div class="output-toolbar-left">
+        <button id="backBtn" class="btn btn-light" type="button">← Voltar</button>
+        <div class="output-toolbar-title">Pictograma pronto</div>
+      </div>
+      <div class="output-toolbar-right">
+        <div class="zoom-controls">
+          <button id="pageZoomOut" class="zoom-btn" type="button" title="Diminuir zoom">−</button>
+          <button id="pageZoomReset" class="zoom-value" type="button" title="Ajustar à área"><span id="pageZoomValue">100%</span></button>
+          <button id="pageZoomIn" class="zoom-btn" type="button" title="Aumentar zoom">+</button>
+        </div>
+        <div id="modeStatus" class="status-pill">Modo atividade</div>
+        <button id="revealBtn" class="btn btn-light" type="button">Mostrar Resultados</button>
+        <button id="printBtn" class="btn btn-primary" type="button">Imprimir</button>
+      </div>
+    </div>
+
+    <div class="output-workspace">
+      <section id="printPage" class="print-page">
+        <h1 id="sheetTitle" class="sheet-title">JOGO DA REVELAÇÃO</h1>
+
+        <section class="letter-map-section">
+          <h2 class="sheet-section-title">MAPA DAS LETRAS</h2>
+          <div id="letterMap" class="letter-map"></div>
+        </section>
+
+        <section id="wordsBoard" class="words-board"></section>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="toast" class="toast">Mensagem</div>
+
+<script>
+(function () {
+  var themes = {
+    animals: [
+      "🐟","🐦","🐑","🐘","🐎","🐇","🐄","🐈","🐕","🐢","🐍","🐖","🐓","🐁","🐐","🦆","🦃","🦉","🦋","🐝",
+      "🐞","🦀","🐙","🐬","🦈","🐊","🦓","🦒","🦘","🦜","🦢","🦚","🐿️","🦔","🦥","🦦","🦨","🦡","🦌","🐫",
+      "🐪","🦏","🦛","🐆","🐅","🐃","🐂","🐏","🐒","🦍","🦧","🐺","🦊","🦝","🐱","🐭","🐹","🐰","🐸","🐼"
+    ],
+    fruits: [
+      "🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🥑","🍆","🥔",
+      "🥕","🌽","🌶️","🫑","🥒","🥬","🥦","🧄","🧅","🍄","🥜","🌰","🍞","🥐","🥨","🧀","🥚","🍪","🍯","🍬",
+      "🍭","🧁","🍰","🥧","🍮","🍫","🍿","🥞","🧇","🥯","🥖","🫒","🫘","🫛","🫚","🫐","🍠","🥭","🍏","🍋"
+    ],
+    smiles: [
+      "😀","😃","😄","😁","😆","😅","😂","🙂","🙃","😉","😊","😇","🥰","😍","🤩","😘","😋","😛","😜","🤪",
+      "🤨","🧐","🤓","😎","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭",
+      "😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","🤗","🤔","🫣","🤭","🫢","🤫","🫡","🤐"
+    ],
+    greek: [
+      "α","β","γ","δ","ε","ζ","η","θ","ι","κ","λ","μ","ν","ξ","ο","π","ρ","σ","τ","υ",
+      "φ","χ","ψ","ω","Α","Β","Γ","Δ","Ε","Ζ","Η","Θ","Ι","Κ","Λ","Μ","Ν","Ξ","Ο","Π",
+      "Ρ","Σ","Τ","Υ","Φ","Χ","Ψ","Ω","ϐ","ϑ","ϖ","ϕ","ϱ","ϵ","ϰ","Ϝ","Ϟ","Ϡ","ϡ","ϻ"
+    ],
+    flags: [
+      "🇧🇷","🇦🇷","🇨🇱","🇺🇾","🇵🇾","🇧🇴","🇵🇪","🇨🇴","🇪🇨","🇻🇪","🇲🇽","🇨🇦","🇺🇸","🇵🇹","🇪🇸","🇫🇷","🇮🇹","🇩🇪","🇬🇧","🇮🇪",
+      "🇳🇱","🇧🇪","🇨🇭","🇦🇹","🇸🇪","🇳🇴","🇩🇰","🇫🇮","🇮🇸","🇬🇷","🇹🇷","🇵🇱","🇨🇿","🇭🇺","🇷🇴","🇧🇬","🇭🇷","🇷🇸","🇺🇦","🇬🇪",
+      "🇯🇵","🇨🇳","🇰🇷","🇮🇳","🇹🇭","🇻🇳","🇮🇩","🇵🇭","🇦🇺","🇳🇿","🇿🇦","🇪🇬","🇲🇦","🇰🇪","🇳🇬","🇬🇭","🇮🇱","🇸🇦","🇦🇪","🇶🇦"
+    ],
+    symbols: [
+      "★","☆","◆","◇","■","□","●","○","▲","△","▼","▽","◀","▶","♠","♣","♥","♦","☀","☁",
+      "☂","☃","☄","☎","✈","✉","✂","✎","✓","✕","✦","✧","☯","☮","⚑","⚐","⚙","⚓","⚡","⌛",
+      "⌚","♬","♫","☘","☕","⚽","⚾","♟","♜","♞","♝","♛","♚","⌘","∞","∑","∆","Ω","※","§"
+    ]
+  };
+
+  var monochromeSymbols = [
+    "bw-s0","bw-s1","bw-s2","bw-s3","bw-s4","bw-s5","bw-s6","bw-s7","bw-s8","bw-s9",
+    "bw-s10","bw-s11","bw-s12","bw-s13","bw-s14","bw-s15","bw-s16","bw-s17","bw-s18","bw-s19",
+    "bw-s20","bw-s21","bw-s22","bw-s23","bw-s24","bw-s25"
+  ];
+
+  var state = {
+    title: "JOGO DA REVELAÇÃO",
+    lines: [],
+    normalizedLines: [],
+    mapping: {},
+    bwMapping: {},
+    usedLetters: [],
+    mapLetters: [],
+    revealed: [],
+    showAnswers: false,
+    normalize: true,
+    shuffleMap: true,
+    printColor: false,
+    theme: "animals",
+    previewZoom: 1,
+    pageZoom: 1
+  };
+
+  var configScreen = document.getElementById("configScreen");
+  var outputScreen = document.getElementById("outputScreen");
+  var pictogramTitle = document.getElementById("pictogramTitle");
+  var wordsInput = document.getElementById("wordsInput");
+  var themeSelect = document.getElementById("themeSelect");
+  var revealedLetters = document.getElementById("revealedLetters");
+  var normalizeAccents = document.getElementById("normalizeAccents");
+  var shuffleMapLetters = document.getElementById("shuffleMapLetters");
+  var colorPrint = document.getElementById("colorPrint");
+  var createBtn = document.getElementById("createBtn");
+  var exampleBtn = document.getElementById("exampleBtn");
+  var clearBtn = document.getElementById("clearBtn");
+  var backBtn = document.getElementById("backBtn");
+  var revealBtn = document.getElementById("revealBtn");
+  var printBtn = document.getElementById("printBtn");
+  var sheetTitle = document.getElementById("sheetTitle");
+  var letterMap = document.getElementById("letterMap");
+  var wordsBoard = document.getElementById("wordsBoard");
+  var printPage = document.getElementById("printPage");
+  var outputWorkspace = document.querySelector(".output-workspace");
+  var modeStatus = document.getElementById("modeStatus");
+  var toast = document.getElementById("toast");
+
+  var miniTitle = document.getElementById("miniTitle");
+  var miniMap = document.getElementById("miniMap");
+  var miniWords = document.getElementById("miniWords");
+  var previewCount = document.getElementById("previewCount");
+  var previewPage = document.getElementById("previewPage");
+  var previewWrap = document.querySelector(".preview-canvas-wrap");
+  var previewZoomIn = document.getElementById("previewZoomIn");
+  var previewZoomOut = document.getElementById("previewZoomOut");
+  var previewZoomReset = document.getElementById("previewZoomReset");
+  var previewZoomValue = document.getElementById("previewZoomValue");
+  var pageZoomIn = document.getElementById("pageZoomIn");
+  var pageZoomOut = document.getElementById("pageZoomOut");
+  var pageZoomReset = document.getElementById("pageZoomReset");
+  var pageZoomValue = document.getElementById("pageZoomValue");
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    window.clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(function () {
+      toast.classList.remove("show");
+    }, 1800);
+  }
+
+  function normalizeCharacter(char) {
+    if (!state.normalize) return char.toUpperCase();
+    if (char === "Ç" || char === "ç") return "C";
+    return char.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  }
+
+  function normalizeText(text) {
+    var result = "";
+    var chars = Array.from(text);
+    for (var i = 0; i < chars.length; i++) {
+      result += normalizeCharacter(chars[i]);
+    }
+    return result;
+  }
+
+  function isLetter(char) {
+    return /^[A-ZÀ-ÖØ-öø-ÿÇÑ]$/i.test(char);
+  }
+
+  function parseLines() {
+    var raw = wordsInput.value.replace(/\r/g, "");
+    return raw.split("\n")
+      .map(function (line) { return line.trim(); })
+      .filter(function (line) { return line.length > 0; });
+  }
+
+  function parseRevealed() {
+    var raw = revealedLetters.value.toUpperCase();
+    var normalized = normalizeText(raw);
+    var letters = [];
+    Array.from(normalized).forEach(function (char) {
+      if (isLetter(char) && letters.indexOf(char) === -1) {
+        letters.push(char);
+      }
+    });
+    return letters;
+  }
+
+  function getUsedLetters(lines) {
+    var result = [];
+    lines.forEach(function (line) {
+      Array.from(line).forEach(function (char) {
+        var n = normalizeCharacter(char);
+        if (isLetter(n) && result.indexOf(n) === -1) {
+          result.push(n);
+        }
+      });
+    });
+    return result.sort();
+  }
+
+  function seededShuffle(array, seedText) {
+    var a = array.slice();
+    var seed = 0;
+    for (var s = 0; s < seedText.length; s++) {
+      seed = (seed * 31 + seedText.charCodeAt(s)) >>> 0;
+    }
+
+    function random() {
+      seed = (1664525 * seed + 1013904223) >>> 0;
+      return seed / 4294967296;
+    }
+
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(random() * (i + 1));
+      var temp = a[i];
+      a[i] = a[j];
+      a[j] = temp;
+    }
+    return a;
+  }
+
+  function randomShuffle(array) {
+    var result = array.slice();
+    for (var i = result.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = result[i];
+      result[i] = result[j];
+      result[j] = temp;
+    }
+    return result;
+  }
+
+  function getThemePool(theme, needed, seedText) {
+    if (theme === "numbers") {
+      var numbers = [];
+      for (var n = 0; n <= 99; n++) numbers.push(String(n));
+      return seededShuffle(numbers, seedText);
+    }
+    var base = themes[theme] || themes.symbols;
+    var pool = seededShuffle(base, seedText);
+
+    while (pool.length < needed) {
+      pool = pool.concat(seededShuffle(base, seedText + pool.length));
+    }
+    return pool;
+  }
+
+  function buildState() {
+    state.title = (pictogramTitle.value.trim() || "PICTOGRAMA").toUpperCase();
+    state.lines = parseLines();
+    state.normalize = normalizeAccents.checked;
+    state.shuffleMap = shuffleMapLetters.checked;
+    state.printColor = colorPrint.checked;
+    state.theme = themeSelect.value;
+    state.revealed = parseRevealed();
+    state.normalizedLines = state.lines.map(normalizeText);
+    state.usedLetters = getUsedLetters(state.lines);
+    state.mapLetters = state.shuffleMap ? randomShuffle(state.usedLetters) : state.usedLetters.slice();
+    state.mapping = {};
+
+    var pool = getThemePool(
+      state.theme,
+      state.usedLetters.length,
+      state.title + "|" + state.normalizedLines.join("|") + "|" + state.theme
+    );
+
+    state.bwMapping = {};
+    var bwPool = seededShuffle(
+      monochromeSymbols,
+      state.title + "|" + state.normalizedLines.join("|") + "|monochrome"
+    );
+
+    state.usedLetters.forEach(function (letter, index) {
+      state.mapping[letter] = pool[index];
+      state.bwMapping[letter] = bwPool[index % bwPool.length];
+    });
+  }
+
+  function valueVisible(letter) {
+    return state.showAnswers || state.revealed.indexOf(letter) !== -1;
+  }
+
+  function makeMapKey(letter, mini) {
+    var key = document.createElement("div");
+    key.className = mini ? "mini-key" : "letter-key";
+
+    var symbol = document.createElement("span");
+    symbol.className = mini ? "mini-symbol" : "letter-key-symbol";
+    symbol.textContent = state.mapping[letter] || "";
+    if (!mini) symbol.setAttribute("data-letter", letter);
+
+    var equals = document.createElement("span");
+    equals.className = mini ? "" : "letter-key-equals";
+    equals.textContent = "=";
+
+    var value = document.createElement("span");
+    value.className = mini ? "" : "letter-key-value";
+    value.textContent = valueVisible(letter) ? letter : "";
+
+    key.appendChild(symbol);
+    key.appendChild(equals);
+    key.appendChild(value);
+    return key;
+  }
+
+  function renderLetterMap(target, mini) {
+    target.innerHTML = "";
+    state.mapLetters.forEach(function (letter) {
+      target.appendChild(makeMapKey(letter, mini));
+    });
+  }
+
+  function buildWordBlock(line, mini) {
+    var block = document.createElement("div");
+    block.className = mini ? "mini-word" : "word-block";
+
+    Array.from(line).forEach(function (char) {
+      var normalized = normalizeCharacter(char);
+
+      if (char === " ") {
+        var space = document.createElement("div");
+        space.className = mini ? "mini-space" : "word-space";
+        block.appendChild(space);
+        return;
+      }
+
+      if (!isLetter(normalized)) {
+        var punctuation = document.createElement("div");
+        punctuation.className = mini ? "mini-cell" : "punctuation-block";
+        punctuation.textContent = char;
+        block.appendChild(punctuation);
+        return;
+      }
+
+      if (mini) {
+        var miniCell = document.createElement("div");
+        miniCell.className = "mini-cell";
+
+        var miniAnswer = document.createElement("div");
+        miniAnswer.className = "mini-answer";
+        miniAnswer.textContent = valueVisible(normalized) ? normalized : "";
+
+        var miniPicto = document.createElement("div");
+        miniPicto.className = "mini-picto";
+        miniPicto.textContent = state.mapping[normalized] || "";
+
+        miniCell.appendChild(miniAnswer);
+        miniCell.appendChild(miniPicto);
+        block.appendChild(miniCell);
+      } else {
+        var letterBlock = document.createElement("div");
+        letterBlock.className = "letter-block";
+
+        var answer = document.createElement("div");
+        answer.className = "answer-cell";
+        answer.textContent = valueVisible(normalized) ? normalized : "";
+
+        var symbol = document.createElement("div");
+        symbol.className = "symbol-cell";
+        symbol.setAttribute("data-letter", normalized);
+        symbol.textContent = state.mapping[normalized] || "";
+
+        letterBlock.appendChild(answer);
+        letterBlock.appendChild(symbol);
+        block.appendChild(letterBlock);
+      }
+    });
+
+    return block;
+  }
+
+  function renderWords(target, mini) {
+    target.innerHTML = "";
+    state.normalizedLines.forEach(function (line) {
+      target.appendChild(buildWordBlock(line, mini));
+    });
+  }
+
+  function updateSheetTitle() {
+    sheetTitle.textContent = state.title + (state.showAnswers ? " (GABARITO)" : "");
+    modeStatus.textContent = state.showAnswers ? "Modo gabarito" : "Modo atividade";
+    revealBtn.textContent = state.showAnswers ? "Ocultar Resultados" : "Mostrar Resultados";
+  }
+
+  function renderOutput() {
+    updateSheetTitle();
+    renderLetterMap(letterMap, false);
+    renderWords(wordsBoard, false);
+    fitOutputPage();
+  }
+
+  function renderPreview() {
+    buildState();
+    miniTitle.textContent = state.title;
+    renderLetterMap(miniMap, true);
+    renderWords(miniWords, true);
+    previewCount.textContent = state.usedLetters.length + (state.usedLetters.length === 1 ? " letra" : " letras");
+    fitPreviewPage();
+  }
+
+  function clampZoom(value) {
+    return Math.max(0.25, Math.min(2.5, value));
+  }
+
+  function applyPreviewZoom(value) {
+    state.previewZoom = clampZoom(value);
+    previewPage.style.zoom = state.previewZoom;
+    previewZoomValue.textContent = Math.round(state.previewZoom * 100) + "%";
+  }
+
+  function applyPageZoom(value) {
+    state.pageZoom = clampZoom(value);
+    printPage.style.zoom = state.pageZoom;
+    pageZoomValue.textContent = Math.round(state.pageZoom * 100) + "%";
+  }
+
+  function fitPreviewPage() {
+    requestAnimationFrame(function () {
+      var maxW = Math.max(120, previewWrap.clientWidth - 34);
+      var maxH = Math.max(160, previewWrap.clientHeight - 34);
+      applyPreviewZoom(Math.min(maxW / 595, maxH / 842, 1));
+      previewWrap.scrollTop = 0;
+      previewWrap.scrollLeft = 0;
+    });
+  }
+
+  function fitOutputPage() {
+    requestAnimationFrame(function () {
+      var maxW = Math.max(160, outputWorkspace.clientWidth - 40);
+      var maxH = Math.max(220, outputWorkspace.clientHeight - 40);
+      applyPageZoom(Math.min(maxW / 794, maxH / 1123, 1));
+      outputWorkspace.scrollTop = 0;
+      outputWorkspace.scrollLeft = 0;
+    });
+  }
+
+  function zoomPreview(delta) {
+    applyPreviewZoom(state.previewZoom + delta);
+  }
+
+  function zoomPage(delta) {
+    applyPageZoom(state.pageZoom + delta);
+  }
+
+  function switchToOutput() {
+    buildState();
+
+    if (!state.lines.length) {
+      showToast("Digite pelo menos uma palavra ou frase.");
+      wordsInput.focus();
+      return;
+    }
+
+    if (!state.usedLetters.length) {
+      showToast("As palavras precisam conter ao menos uma letra.");
+      return;
+    }
+
+    state.showAnswers = false;
+    configScreen.classList.remove("active");
+    outputScreen.classList.add("active");
+    renderOutput();
+  }
+
+  function switchToConfig() {
+    outputScreen.classList.remove("active");
+    configScreen.classList.add("active");
+    renderPreview();
+  }
+
+  function loadExample() {
+    pictogramTitle.value = "JOGO DA REVELAÇÃO";
+    wordsInput.value = [
+      "VENTO FORTE",
+      "PALAVRA SECRETA",
+      "DESAFIO",
+      "MAPA DE LETRAS",
+      "CRIPTOGRAMA",
+      "DESCOBRIR"
+    ].join("\n");
+    themeSelect.value = "animals";
+    revealedLetters.value = "A, T, G";
+    normalizeAccents.checked = true;
+    shuffleMapLetters.checked = true;
+    colorPrint.checked = false;
+    state.showAnswers = false;
+    renderPreview();
+    showToast("Exemplo carregado.");
+  }
+
+  function clearForm() {
+    pictogramTitle.value = "";
+    wordsInput.value = "";
+    revealedLetters.value = "";
+    normalizeAccents.checked = true;
+    shuffleMapLetters.checked = true;
+    colorPrint.checked = false;
+    themeSelect.value = "animals";
+    state.showAnswers = false;
+    renderPreview();
+    pictogramTitle.focus();
+  }
+
+  function toggleAnswers() {
+    state.showAnswers = !state.showAnswers;
+    renderOutput();
+  }
+
+  function preparePrintSymbols() {
+    document.body.classList.remove("print-monochrome", "print-color-mode");
+
+    if (state.printColor) {
+      restoreScreenSymbols();
+      document.body.classList.add("print-color-mode");
+      return;
+    }
+
+    document.body.classList.add("print-monochrome");
+
+    var nodes = printPage.querySelectorAll(".letter-key-symbol[data-letter], .symbol-cell[data-letter]");
+    nodes.forEach(function (node) {
+      if (!node.hasAttribute("data-screen-symbol")) {
+        node.setAttribute("data-screen-symbol", node.textContent);
+      }
+
+      var previousShape = node.getAttribute("data-bw-shape");
+      if (previousShape) {
+        node.classList.remove(previousShape);
+      }
+
+      var letter = node.getAttribute("data-letter");
+      var shapeClass = state.bwMapping[letter] || "bw-s0";
+
+      node.textContent = "";
+      node.classList.add("bw-shape", shapeClass);
+      node.setAttribute("data-bw-shape", shapeClass);
+    });
+  }
+
+  function restoreScreenSymbols() {
+    var nodes = printPage.querySelectorAll("[data-screen-symbol]");
+    nodes.forEach(function (node) {
+      var shapeClass = node.getAttribute("data-bw-shape");
+      if (shapeClass) {
+        node.classList.remove(shapeClass);
+        node.removeAttribute("data-bw-shape");
+      }
+      node.classList.remove("bw-shape");
+      node.textContent = node.getAttribute("data-screen-symbol");
+      node.removeAttribute("data-screen-symbol");
+    });
+
+    document.body.classList.remove("print-monochrome", "print-color-mode");
+  }
+
+  function printPictogram() {
+    updateSheetTitle();
+    preparePrintSymbols();
+    window.print();
+  }
+
+  createBtn.addEventListener("click", switchToOutput);
+  backBtn.addEventListener("click", switchToConfig);
+  revealBtn.addEventListener("click", toggleAnswers);
+  printBtn.addEventListener("click", printPictogram);
+  exampleBtn.addEventListener("click", loadExample);
+  clearBtn.addEventListener("click", clearForm);
+  previewZoomIn.addEventListener("click", function () { zoomPreview(0.15); });
+  previewZoomOut.addEventListener("click", function () { zoomPreview(-0.15); });
+  previewZoomReset.addEventListener("click", fitPreviewPage);
+  pageZoomIn.addEventListener("click", function () { zoomPage(0.15); });
+  pageZoomOut.addEventListener("click", function () { zoomPage(-0.15); });
+  pageZoomReset.addEventListener("click", fitOutputPage);
+
+  [
+    pictogramTitle,
+    wordsInput,
+    themeSelect,
+    revealedLetters,
+    normalizeAccents,
+    shuffleMapLetters,
+    colorPrint
+  ].forEach(function (control) {
+    control.addEventListener("input", renderPreview);
+    control.addEventListener("change", renderPreview);
+  });
+
+  window.addEventListener("resize", function () {
+    if (configScreen.classList.contains("active")) fitPreviewPage();
+    if (outputScreen.classList.contains("active")) fitOutputPage();
+  });
+
+  window.addEventListener("beforeprint", function () {
+    updateSheetTitle();
+    preparePrintSymbols();
+  });
+
+  window.addEventListener("afterprint", function () {
+    restoreScreenSymbols();
+    applyPageZoom(state.pageZoom);
+  });
+
+  renderPreview();
+})();
+</script>
+</body>
+</html>
